@@ -1,0 +1,140 @@
+(require 'package)
+(add-to-list 'package-archives
+	     '("melpa-stable"
+	       . "https://stable.melpa.org/packages/"))
+(package-initialize)
+
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+;;(setq grip-binary-path "/home/joe/.local/bin/grip")
+;;(add-hook 'markdown-mode-hook `grip-mode)
+;;(setq grip-url-browser "google-chrome")
+
+;;; add a directory to the load path
+(add-to-list `load-path "~/.emacs.d/lisp/")
+
+;;; enable inline image viewing
+(require 'markdown-mode)
+(setq markdown-toggle-inline-images t)
+
+;;; drag and drop images
+(require 'markdown-dnd-images)
+(setq dnd-save-directory "./.${filename}/") ; Set your desired directory for saving images
+(setq dnd-view-inline t) ; Enable inlne viewing of images
+
+;; -*- mode: elisp -*-
+
+;; Disable the splash screen (to enable it again, replace the t with 0)
+(setq inhibit-splash-screen t)
+
+;; Enable transient mark mode
+(transient-mark-mode 1)
+
+;;;;Org mode configuration
+;; Enable Org mode
+(require 'org)
+;; Make Org mode work with files ending in .org
+;; (add-to-list 'auto-mode-alist '("\\.org$". org-mode))
+;; The above is the default in recent emacsen
+
+;;; Add workflow states
+(setq org-todo-keywords
+      '((sequence "TODO" "IN-PROGRESS" "WAITING" "DONE")))
+
+;;; change aumatic backup directory
+(setq backup-directory-alist '(("." . "~/.emacs.d/backup")))
+(setq make-backup-files t)  ; Enable backups
+
+;; set default tab width to 8 spaces
+(setq-default tab-width 8)
+
+;; use spaces for indentation
+;(setq-default indent-tabs-mode nil)
+
+;; specify styles for C-like major modes
+(setq c-default-style
+      '((java-mode . "java")
+	(awk-mode . "awk")
+	(c-mode . "linux")
+	(other . "gnu")))      
+
+;; set scroll step to scroll certain lines with 'C-x' at bottom
+;(setq scroll-step 2)
+
+;; set fill column, i.e., the maximum line width
+(setq-default fill-column 100)
+
+;; display column number
+(setq column-number-mode t)
+
+;; Enable smooth scrolling
+(setq scroll-conservatively 1)  ; Scroll smoothly without jumping
+(setq scroll-margin 0)           ; No margin for scrolling
+;(setq scroll-preserve-screen-position t)  ; Preserve cursor position
+;(setq auto-window-vscroll nil)   ; Disable automatic window vertical scrolling
+
+;; Function to scroll down one line without moving the cursor
+(defun scroll-down-in-place (n)
+  "Scroll down N lines while keeping the cursor in place."
+  (interactive "p")
+  ;(previous-line n)
+  (scroll-down n))
+
+;; Function to scroll up one line without moving the cursor
+(defun scroll-up-in-place (n)
+  "Scroll up N lines while keeping the cursor in place."
+  (interactive "p")
+  ;(next-line n)
+  (scroll-up n))
+
+;; Key bindings for scrolling
+(global-set-key (kbd "M-n") 'scroll-up-in-place)  ; Meta + n for scrolling down
+(global-set-key (kbd "M-p") 'scroll-down-in-place) ; Meta + p for scrolling up
+
+;; Unset and Rebind scrolling keybinding in markdown mode
+(define-key markdown-mode-map (kbd "M-n") nil)
+(define-key markdown-mode-map (kbd "M-n") 'scroll-up-in-place)
+(define-key markdown-mode-map (kbd "M-p") nil)
+(define-key markdown-mode-map (kbd "M-p") 'scroll-down-in-place)
+
+;; Syntax Highlighting
+(require 'tree-sitter)
+;(require 'tree-sitter-langs)
+
+(global-tree-sitter-mode)
+(add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
+
+;; Change frame-background-mode for dark theme
+(setq frame-background-mode 'dark)
+
+;; Set *compilation* buffer scrolls automatically
+(setq compilation-scroll-output 'non-nil)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-enabled-themes '(wombat))
+ '(ispell-dictionary nil))
+
+(defun move-line-up ()
+  "Move up the current line."
+  (interactive)
+  (transpose-lines 1)
+  (forward-line -2)
+  (indent-according-to-mode))
+
+(defun move-line-down ()
+  "Move down the current line."
+  (interactive)
+  (forward-line 1)
+  (transpose-lines 1)
+  (forward-line -1)
+  (indent-according-to-mode))
+
+(global-set-key [(meta shift up)] 'move-line-up)
+(global-set-key [(meta shift down)] 'move-line-down)
