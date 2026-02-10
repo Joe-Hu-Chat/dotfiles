@@ -4,6 +4,41 @@
 	       . "https://stable.melpa.org/packages/"))
 (package-initialize)
 
+(defvar rc/package-contents-refreshed nil)
+
+(defun rc/package-refresh-contents-once ()
+  (when (not rc/package-contents-refreshed)
+    (setq rc/package-contents-refreshed t)
+    (package-refresh-contents)))
+
+(defun rc/require-one-package (package)
+  (when (not (package-installed-p package))
+    (rc/package-refresh-contents-once)
+    (package-install package)))
+
+(defun rc/require (&rest packages)
+  (dolist (package packages)
+    (rc/require-one-package package)))
+
+;; magit
+(rc/require 'magit)
+
+(setq magit-auto-revert-mode nil)
+
+(global-set-key (kbd "C-c m s") 'magit-status)
+(global-set-key (kbd "C-c m l") 'magit-log)
+
+;;; multiple cursors
+(rc/require 'multiple-cursors)
+
+(global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+(global-set-key (kbd "C->") 'mc/mark-next-like-this)
+(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+(global-set-key (kbd "C-c C->") 'mc/mark-all-like-this)
+(global-set-key (kbd "C-\"") 'mc/skip-to-next-like-this)
+(global-set-key (kbd "C-:") 'mc/skip-to-previous-like-this)
+
+
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -18,11 +53,11 @@
 (add-to-list `load-path "~/.emacs.d/lisp/")
 
 ;;; enable inline image viewing
-(require 'markdown-mode)
+(rc/require 'markdown-mode)
 (setq markdown-toggle-inline-images t)
 
 ;;; drag and drop images
-(require 'markdown-dnd-images)
+(rc/require 'markdown-dnd-images)
 (setq dnd-save-directory "./.${filename}/") ; Set your desired directory for saving images
 (setq dnd-view-inline t) ; Enable inlne viewing of images
 
@@ -36,7 +71,7 @@
 
 ;;;;Org mode configuration
 ;; Enable Org mode
-(require 'org)
+(rc/require 'org)
 ;; Make Org mode work with files ending in .org
 ;; (add-to-list 'auto-mode-alist '("\\.org$". org-mode))
 ;; The above is the default in recent emacsen
@@ -65,11 +100,15 @@
 ;; set scroll step to scroll certain lines with 'C-x' at bottom
 ;(setq scroll-step 2)
 
-;; set fill column, i.e., the maximum line width
+;;; set fill column, i.e., the maximum line width
 (setq-default fill-column 100)
 
-;; display column number
+;;; display column number
 (setq column-number-mode t)
+
+;;; Display relative line numbers
+(setq display-line-numbers-type 'relative)
+(global-display-line-numbers-mode t)
 
 ;; Enable smooth scrolling
 (setq scroll-conservatively 1)  ; Scroll smoothly without jumping
@@ -77,25 +116,22 @@
 ;(setq scroll-preserve-screen-position t)  ; Preserve cursor position
 ;(setq auto-window-vscroll nil)   ; Disable automatic window vertical scrolling
 
-;; Function to scroll down one line without moving the cursor
-(defun scroll-down-in-place (n)
-  "Scroll down N lines while keeping the cursor in place."
-  (interactive "p")
-  ;(previous-line n)
-  (scroll-down n))
+;;; Useful shortcut to scroll back and forth
+(defun scroll-up-keep-cursor ()
+  "Scroll up without moving cursor."
+  (interactive)
+  (scroll-up 1))
 
-;; Function to scroll up one line without moving the cursor
-(defun scroll-up-in-place (n)
-  "Scroll up N lines while keeping the cursor in place."
-  (interactive "p")
-  ;(next-line n)
-  (scroll-up n))
+(defun scroll-down-keep-cursor ()
+  "Scroll down without moving cursor."
+  (interactive)
+  (scroll-down 1))
 
-;; Key bindings for scrolling
-(global-set-key (kbd "M-n") 'scroll-up-in-place)  ; Meta + n for scrolling down
-(global-set-key (kbd "M-p") 'scroll-down-in-place) ; Meta + p for scrolling up
+(global-set-key (kbd "M-n") 'scroll-up-keep-cursor)
+(global-set-key (kbd "M-p") 'scroll-down-keep-cursor)
 
-;; Unset and Rebind scrolling keybinding in markdown mode
+
+;;; Unset and Rebind scrolling keybinding in markdown mode
 (define-key markdown-mode-map (kbd "M-n") nil)
 (define-key markdown-mode-map (kbd "M-n") 'scroll-up-in-place)
 (define-key markdown-mode-map (kbd "M-p") nil)
@@ -111,7 +147,7 @@
 ;; Change frame-background-mode for dark theme
 (setq frame-background-mode 'dark)
 
-;; Set *compilation* buffer scrolls automatically
+;;; Set *compilation* buffer scrolls automatically
 (setq compilation-scroll-output 'non-nil)
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -138,3 +174,4 @@
 
 (global-set-key [(meta shift up)] 'move-line-up)
 (global-set-key [(meta shift down)] 'move-line-down)
+
