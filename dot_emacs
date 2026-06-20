@@ -4,6 +4,10 @@
 	       . "https://stable.melpa.org/packages/"))
 (package-initialize)
 
+(menu-bar-mode 0)
+(tool-bar-mode 0)
+(scroll-bar-mode 0)
+
 (defvar rc/package-contents-refreshed nil)
 
 (defun rc/package-refresh-contents-once ()
@@ -39,12 +43,6 @@
 (global-set-key (kbd "C-:") 'mc/skip-to-previous-like-this)
 
 
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
 ;;(setq grip-binary-path "/home/joe/.local/bin/grip")
 ;;(add-hook 'markdown-mode-hook `grip-mode)
 ;;(setq grip-url-browser "google-chrome")
@@ -57,9 +55,9 @@
 (setq markdown-toggle-inline-images t)
 
 ;;; drag and drop images
-(rc/require 'markdown-dnd-images)
-(setq dnd-save-directory "./.${filename}/") ; Set your desired directory for saving images
-(setq dnd-view-inline t) ; Enable inlne viewing of images
+;; (rc/require 'markdown-dnd-images)
+;; (setq dnd-save-directory "./.${filename}/") ; Set your desired directory for saving images
+;; (setq dnd-view-inline t) ; Enable inlne viewing of images
 
 ;; -*- mode: elisp -*-
 
@@ -97,11 +95,11 @@
 	(c-mode . "linux")
 	(other . "gnu")))      
 
-;; set scroll step to scroll certain lines with 'C-x' at bottom
-;(setq scroll-step 2)
+;;; set scroll step to scroll certain lines with 'C-x' at bottom
+(setq scroll-step 2)
 
 ;;; set fill column, i.e., the maximum line width
-(setq-default fill-column 100)
+(setq-default fill-column 80)
 
 ;;; display column number
 (setq column-number-mode t)
@@ -109,6 +107,8 @@
 ;;; Display relative line numbers
 (setq display-line-numbers-type 'relative)
 (global-display-line-numbers-mode t)
+(set-face-attribute 'line-number nil :inherit 'fixed-pitch)
+(set-face-attribute 'line-number-current-line nil :inherit 'fixed-pitch)
 
 ;; Enable smooth scrolling
 (setq scroll-conservatively 1)  ; Scroll smoothly without jumping
@@ -130,22 +130,28 @@
 (global-set-key (kbd "M-n") 'scroll-up-keep-cursor)
 (global-set-key (kbd "M-p") 'scroll-down-keep-cursor)
 
-
 ;;; Unset and Rebind scrolling keybinding in markdown mode
-(define-key markdown-mode-map (kbd "M-n") nil)
-(define-key markdown-mode-map (kbd "M-n") 'scroll-up-in-place)
-(define-key markdown-mode-map (kbd "M-p") nil)
-(define-key markdown-mode-map (kbd "M-p") 'scroll-down-in-place)
+(with-eval-after-load 'markdown-mode
+     (define-key markdown-mode-map (kbd "M-n") nil)
+     (define-key markdown-mode-map (kbd "M-n") 'scroll-up-keep-cursor)
+     (define-key markdown-mode-map (kbd "M-p") nil)
+     (define-key markdown-mode-map (kbd "M-p") 'scroll-down-keep-cursor))
 
-;; Syntax Highlighting
-(require 'tree-sitter)
-;(require 'tree-sitter-langs)
+;;; Backup key bindings for scrolling up and down
+(global-set-key (kbd "C-,") 'scroll-up-keep-cursor)
+(global-set-key (kbd "C-.") 'scroll-down-keep-cursor)
+;;; Horizontal scrolling
+;; "C-x <", "C-x >"
 
-(global-tree-sitter-mode)
-(add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
+;;; Syntax Highlighting
+;;(require 'tree-sitter)
+;;(require 'tree-sitter-langs)
 
-;; Change frame-background-mode for dark theme
-(setq frame-background-mode 'dark)
+;; (global-tree-sitter-mode)
+;; (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
+
+;;; Change frame-background-mode for dark theme
+;; (setq frame-background-mode 'bright)
 
 ;;; Set *compilation* buffer scrolls automatically
 (setq compilation-scroll-output 'non-nil)
@@ -154,8 +160,9 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(custom-enabled-themes '(wombat))
- '(ispell-dictionary nil))
+ '(custom-enabled-themes '(tsdh-light))
+ '(custom-safe-themes
+   '("33b011b35a3d457fa6de7ef7ed29524941bafaa8007e418aa265bdbbc82b7d17" default)))
 
 (defun move-line-up ()
   "Move up the current line."
@@ -175,3 +182,5 @@
 (global-set-key [(meta shift up)] 'move-line-up)
 (global-set-key [(meta shift down)] 'move-line-down)
 
+;;; Globally change the default font, effective in GUI mode
+(add-to-list 'default-frame-alist '(font . "Adwaita Mono-13"))
