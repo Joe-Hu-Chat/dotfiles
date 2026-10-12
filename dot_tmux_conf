@@ -6,3 +6,7 @@ set -g pane-base-index 1
 
 # Renumber windows automatically after one is closed
 set -g renumber-windows on
+
+# Smooth scroll
+bind-key -T copy-mode M-n send-keys -X scroll-down
+bind-key -T copy-mode M-p send-keys -X scroll-up
